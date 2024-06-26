@@ -23,7 +23,7 @@ def format_date(date_obj, format_string="%d/%m/%Y %H:%M"):
 
 
 # Helper function for splitting telegram message
-def split_message(message, max_length=4096):
+def split_message(message, max_length=4095):
     parts = []
     while len(message) > max_length:
         part = message[:max_length]
