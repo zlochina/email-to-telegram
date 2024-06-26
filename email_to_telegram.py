@@ -1,5 +1,6 @@
 import email
 import imaplib
+import logging
 import time
 from email.header import decode_header
 from email.utils import parseaddr, parsedate_to_datetime
@@ -7,6 +8,13 @@ from email.utils import parseaddr, parsedate_to_datetime
 import requests
 
 from config import *
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 # Helper function for date formatting
@@ -86,11 +94,21 @@ def check_emails():
         )
         send_telegram_message(message)
 
+        # Log the processed email
+        logging.info(
+            f"Processed email: Date: {format_date(date)}, From: {sender_name} ({sender_address}), Subject: {subject}"
+        )
+
     mail.close()
     mail.logout()
 
 
 if __name__ == "__main__":
+    logging.info("Starting email checking script")
     while True:
-        check_emails()
-        time.sleep(RETRY_TIME)  # Check every 60 seconds
+        try:
+            check_emails()
+        except Exception as e:
+            logging.error(f"An error occurred: {str(e)}")
+        logging.info(f"Sleeping for {RETRY_TIME} seconds")
+        time.sleep(RETRY_TIME)
