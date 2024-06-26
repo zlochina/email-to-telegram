@@ -22,6 +22,21 @@ def decode_subject(subject):
     return decoded_subject
 
 
+def decode_content(content, default_charset="utf-8"):
+    if isinstance(content, str):
+        return content
+    elif isinstance(content, bytes):
+        try:
+            return content.decode(default_charset)
+        except UnicodeDecodeError:
+            try:
+                return content.decode("latin-1")
+            except UnicodeDecodeError:
+                return content.decode("ascii", errors="ignore")
+    else:
+        return str(content)
+
+
 def check_emails():
     mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
     mail.login(EMAIL, PASSWORD)
@@ -41,9 +56,13 @@ def check_emails():
         if email_message.is_multipart():
             for part in email_message.walk():
                 if part.get_content_type() == "text/plain":
-                    message += part.get_payload(decode=True).decode()
+                    payload = part.get_payload(decode=True)
+                    charset = part.get_content_charset() or "utf-8"
+                    message += decode_content(payload, charset)
         else:
-            message += email_message.get_payload(decode=True).decode()
+            payload = email_message.get_payload(decode=True)
+            charset = email_message.get_content_charset() or "utf-8"
+            message += decode_content(payload, charset)
 
         send_telegram_message(message)
 
