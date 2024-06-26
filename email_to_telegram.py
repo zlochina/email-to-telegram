@@ -22,11 +22,36 @@ def format_date(date_obj, format_string="%d/%m/%Y %H:%M"):
     return date_obj.strftime(format_string)
 
 
+# Helper function for splitting telegram message
+def split_message(message, max_length=4096):
+    parts = []
+    while len(message) > max_length:
+        part = message[:max_length]
+        last_newline = part.rfind("\n")
+        if last_newline != -1:
+            parts.append(message[:last_newline])
+            message = message[last_newline + 1 :]
+        else:
+            parts.append(part)
+            message = message[max_length:]
+    parts.append(message)
+    return parts
+
+
 def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    data = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "MarkdownV2"}
-    response = requests.post(url, data=data)
-    return response.json()
+    responses = []
+    for part in split_message(message):
+        data = {"chat_id": TELEGRAM_CHAT_ID, "text": part, "parse_mode": "Markdown"}
+        try:
+            response = requests.post(url, data=data)
+            response.raise_for_status()
+            responses.append(response.json())
+            if not response.json().get("ok"):
+                logging.error(f"Failed to send message: {response.json()}")
+        except requests.RequestException as e:
+            logging.error(f"Error sending message: {str(e)}")
+    return responses
 
 
 def decode_subject(subject):
