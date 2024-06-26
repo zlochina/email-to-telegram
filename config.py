@@ -10,3 +10,14 @@ TELEGRAM_CHAT_ID = "your_telegram_chat_id"
 
 # Script configuration
 RETRY_TIME = 60  # Time for checking emails
+MESSAGE_TEMPLATE = """
+✉️*New mail has been received at {date}*✉️
+Sender: {sender_name} ({sender_address})
+
+*{subject}*
+
+{body}
+
+
+_Number of attachments is {attachment_count}_
+"""

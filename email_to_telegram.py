@@ -2,10 +2,16 @@ import email
 import imaplib
 import time
 from email.header import decode_header
+from email.utils import parseaddr, parsedate_to_datetime
 
 import requests
 
 from config import *
+
+
+# Helper function for date formatting
+def format_date(date_obj, format_string="%d/%m/%Y %H:%M"):
+    return date_obj.strftime(format_string)
 
 
 def send_telegram_message(message):
@@ -49,21 +55,35 @@ def check_emails():
         email_message = email.message_from_bytes(email_body)
 
         subject = decode_subject(email_message["Subject"])
-        sender = email.utils.parseaddr(email_message["From"])[1]
+        sender_name, sender_address = parseaddr(email_message["From"])
+        date = parsedate_to_datetime(email_message["Date"])
 
-        message = f"<b>New Email</b>\n\nFrom: {sender}\nSubject: {subject}\n\n"
-
+        body = ""
+        attachment_count = 0
         if email_message.is_multipart():
             for part in email_message.walk():
                 if part.get_content_type() == "text/plain":
                     payload = part.get_payload(decode=True)
                     charset = part.get_content_charset() or "utf-8"
-                    message += decode_content(payload, charset)
+                    body += decode_content(payload, charset)
+                elif (
+                    part.get_content_maintype() != "multipart"
+                    and part.get("Content-Disposition") is not None
+                ):
+                    attachment_count += 1
         else:
             payload = email_message.get_payload(decode=True)
             charset = email_message.get_content_charset() or "utf-8"
-            message += decode_content(payload, charset)
+            body += decode_content(payload, charset)
 
+        message = MESSAGE_TEMPLATE.format(
+            date=format_date(date),
+            sender_name=sender_name or "Unknown",
+            sender_address=sender_address,
+            subject=subject,
+            body=body,
+            attachment_count=attachment_count,
+        )
         send_telegram_message(message)
 
     mail.close()
