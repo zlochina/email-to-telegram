@@ -12,7 +12,7 @@ This project forwards unread emails to a specified Telegram chat.
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - Poetry for dependency management
 
 ## Installation
