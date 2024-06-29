@@ -7,6 +7,7 @@ IMAP_PORT = 993
 # Telegram configuration
 TELEGRAM_BOT_TOKEN = "your_telegram_bot_token"
 TELEGRAM_CHAT_ID = "your_telegram_chat_id"
+MESSAGE_PARSE_MODE = "HTML"
 
 # Script configuration
 RETRY_TIME = 60  # Time for checking emails

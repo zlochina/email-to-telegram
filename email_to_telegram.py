@@ -42,7 +42,11 @@ def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     responses = []
     for part in split_message(message):
-        data = {"chat_id": TELEGRAM_CHAT_ID, "text": part, "parse_mode": "Markdown"}
+        data = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": part,
+            "parse_mode": MESSAGE_PARSE_MODE,
+        }
         try:
             response = requests.post(url, data=data)
             response.raise_for_status()

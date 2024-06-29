@@ -39,6 +39,7 @@ Edit `config.py` and set the following variables:
 - `TELEGRAM_BOT_TOKEN`: Your Telegram bot token
 - `TELEGRAM_CHAT_ID`: Your Telegram chat ID
 - `RETRY_TIME`: Time in seconds between email checks
+- `MESSAGE_PARSE_MODE`: Parsing mode set to Telegram message (Default value: "HTML")
 
 ## Usage
 
